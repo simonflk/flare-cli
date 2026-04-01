@@ -1,0 +1,25 @@
+{
+  "name": "flare-cli",
+  "version": "0.1.0",
+  "description": "Styled terminal alerts for direct messages and wrapped commands.",
+  "type": "module",
+  "bin": {
+    "flare": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/cli.ts --format esm --clean --out-dir dist",
+    "build:test": "tsc --project tsconfig.test.json",
+    "test": "npm run build:test && node --test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  }
+}
