@@ -2,12 +2,8 @@
 
 import { readFile } from "node:fs/promises";
 
+import { alert, run } from "./index.js";
 import { parseArgv, validateCommand } from "./parser.js";
-import { resolvePresentationTokens } from "./presentation.js";
-import { renderAlert } from "./render.js";
-import { summarizeRunResult } from "./result-summary.js";
-import { getExitCode, runCommand } from "./run.js";
-import { detectTerminalCapabilities } from "./terminal.js";
 
 const HELP_TEXT = `Usage:
   flareup [<status>] [<message>] [flags]
@@ -30,12 +26,6 @@ async function readPackageVersion(): Promise<string> {
   return packageJson.version;
 }
 
-function writeOutput(output: string, bell: boolean): void {
-  const suffix = bell ? "\u0007" : "";
-
-  process.stdout.write(`${output}\n${suffix}`);
-}
-
 async function main(): Promise<void> {
   const command = validateCommand(parseArgv(process.argv.slice(2)));
 
@@ -49,44 +39,27 @@ async function main(): Promise<void> {
     return;
   }
 
-  const terminal = detectTerminalCapabilities({ noColor: command.noColor });
-
   if (command.kind === "run") {
-    const result = await runCommand(command.command);
-    const summary = summarizeRunResult(result, {
-      successMessage: command.successMessage,
-      errorMessage: command.errorMessage,
-      showSuccess: command.showSuccess,
-      showError: command.showError,
+    const result = await run(command.command, {
+      success: command.successMessage,
+      error: command.errorMessage,
+      noSuccess: !command.showSuccess,
+      noError: !command.showError,
+      style: command.style,
+      bell: command.bell,
+      noColor: command.noColor,
     });
 
-    if (summary !== null) {
-      const tokens = resolvePresentationTokens(summary.level, terminal);
-      const output = renderAlert({
-        style: command.style,
-        lines: summary.lines,
-        width: terminal.width,
-        truncateMarker: terminal.unicode ? "…" : "...",
-        tokens,
-      });
-
-      writeOutput(output, command.bell);
-    }
-
-    process.exitCode = getExitCode(result);
+    process.exitCode = result.exitCode;
     return;
   }
 
-  const tokens = resolvePresentationTokens(command.level, terminal);
-  const output = renderAlert({
+  alert(command.message!, {
+    level: command.level,
     style: command.style,
-    lines: [{ text: command.message!, variant: "primary" }],
-    width: terminal.width,
-    truncateMarker: terminal.unicode ? "…" : "...",
-    tokens,
+    bell: command.bell,
+    noColor: command.noColor,
   });
-
-  writeOutput(output, command.bell);
 }
 
 void main();

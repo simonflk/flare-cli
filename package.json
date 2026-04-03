@@ -24,8 +24,14 @@
     "dist"
   ],
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsup src/cli.ts --format esm --clean --out-dir dist",
+    "build": "tsup src/cli.ts src/index.ts --format esm --clean --out-dir dist --dts",
     "build:test": "tsc --project tsconfig.test.json",
     "format": "oxfmt --write package.json .oxfmtrc.json .oxlintrc.json tsconfig.json tsconfig.test.json src test",
     "format:check": "oxfmt --check package.json .oxfmtrc.json .oxlintrc.json tsconfig.json tsconfig.test.json src test",

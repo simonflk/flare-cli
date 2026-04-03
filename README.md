@@ -103,6 +103,55 @@ flareup run --style banner -- npm test
 | `--no-success` | Suppress output on success |
 | `--no-error` | Suppress output on error |
 
+## Programmatic API
+
+Use flareup from TypeScript or JavaScript:
+
+```ts
+import { alert, run } from 'flareup'
+
+// Display a styled alert
+alert('Tests passed', { level: 'success' })
+alert('Build failed', { level: 'error', style: 'banner', bell: true })
+alert('Something happened') // plain, default style
+
+// Wrap a command
+const result = await run(['npm', 'test'])
+console.log(result.exitCode)  // 0
+console.log(result.durationMs) // 4200
+
+// With options
+await run(['npm', 'test'], {
+  success: 'All good',
+  error: 'Tests broke',
+  noSuccess: true, // only show on failure
+  style: 'panel',
+})
+```
+
+### `alert(message, options?)`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `level` | `AlertLevel` | `"plain"` | `success`, `error`, `warn`, `info`, `debug`, `plain` |
+| `style` | `AlertStyle` | `"box"` | `box`, `banner`, `callout`, `line`, `minimal`, `panel` |
+| `bell` | `boolean` | `false` | Play terminal bell |
+| `noColor` | `boolean` | `false` | Disable color output |
+
+### `run(command, options?)`
+
+Returns `Promise<{ exitCode: number, durationMs: number }>`.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `success` | `string` | auto | Custom success message |
+| `error` | `string` | auto | Custom error message |
+| `noSuccess` | `boolean` | `false` | Suppress output on success |
+| `noError` | `boolean` | `false` | Suppress output on error |
+| `style` | `AlertStyle` | `"box"` | Visual style |
+| `bell` | `boolean` | `false` | Play terminal bell |
+| `noColor` | `boolean` | `false` | Disable color output |
+
 ## Color support
 
 Respects the [`NO_COLOR`](https://no-color.org/) environment variable. Falls back to ASCII icons (`√`, `x`, `!`) in terminals that don't support Unicode.
