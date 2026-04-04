@@ -33,8 +33,22 @@ test("parseArgv recognizes --style", () => {
   assert.equal(command.style, "banner");
 });
 
+test("parseArgv recognizes -s", () => {
+  const command = validateCommand(parseArgv(["success", "hello", "-s", "banner"]));
+
+  assert.equal(command.style, "banner");
+});
+
 test("parseArgv recognizes --bell", () => {
   const command = validateCommand(parseArgv(["success", "hello", "--bell"]));
+
+  assert.equal(command.kind, "direct");
+  assert.equal(command.bell, true);
+  assert.equal(command.notify, false);
+});
+
+test("parseArgv recognizes -b", () => {
+  const command = validateCommand(parseArgv(["success", "hello", "-b"]));
 
   assert.equal(command.kind, "direct");
   assert.equal(command.bell, true);
@@ -49,12 +63,37 @@ test("parseArgv recognizes --notify", () => {
   assert.equal(command.bell, false);
 });
 
+test("parseArgv recognizes -n", () => {
+  const command = validateCommand(parseArgv(["success", "hello", "-n"]));
+
+  assert.equal(command.kind, "direct");
+  assert.equal(command.notify, true);
+  assert.equal(command.bell, false);
+});
+
 test("parseArgv recognizes --debug-terminal", () => {
   const command = validateCommand(parseArgv(["--debug-terminal"]));
 
   assert.equal(command.kind, "direct");
   assert.equal(command.debugTerminal, true);
   assert.equal(command.message, undefined);
+});
+
+test("parseArgv recognizes -d", () => {
+  const command = validateCommand(parseArgv(["-d"]));
+
+  assert.equal(command.kind, "direct");
+  assert.equal(command.debugTerminal, true);
+  assert.equal(command.message, undefined);
+});
+
+test("parseArgv recognizes bundled short flags", () => {
+  const command = validateCommand(parseArgv(["success", "hello", "-nbd"]));
+
+  assert.equal(command.kind, "direct");
+  assert.equal(command.notify, true);
+  assert.equal(command.bell, true);
+  assert.equal(command.debugTerminal, true);
 });
 
 test("parseArgv parses run mode and command arguments", () => {
@@ -103,6 +142,7 @@ test("parseArgv rejects unknown status names when a status and message are provi
 
 test("parseArgv rejects invalid style names", () => {
   assert.throws(() => parseArgv(["hello", "--style", "loud"]), /unknown style: loud/i);
+  assert.throws(() => parseArgv(["hello", "-s", "loud"]), /unknown style: loud/i);
 });
 
 test("parseArgv rejects run-only flags outside run mode", () => {

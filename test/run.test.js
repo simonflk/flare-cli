@@ -116,3 +116,13 @@ test("bell, notify, help, and version behave as documented", async () => {
   assert.match(debugResult.stderr, /attention_mode: bell/);
   assert.equal(silentBellResult.stdout.trim(), "");
 });
+
+test("run mode accepts short flag aliases", async () => {
+  const result = await runCli(["run", "-n", "--", "node", "-e", "process.exit(0)"], {
+    TERM: "xterm-256color",
+    TERM_PROGRAM: "iTerm.app",
+  });
+
+  assert.equal(result.code, 0);
+  assert.match(result.stdout, /Command succeeded/);
+});

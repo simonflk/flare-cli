@@ -17,6 +17,10 @@ function isAlertStyle(value: string): value is AlertCliCommand["style"] {
   return ALERT_STYLES.has(value as AlertCliCommand["style"]);
 }
 
+function isShortFlagCluster(value: string): boolean {
+  return /^-[^-]/.test(value);
+}
+
 export function parseArgv(argv: string[]): FlareCliCommand {
   const separatorIndex = argv.indexOf("--");
   const cliArgs = separatorIndex === -1 ? argv : argv.slice(0, separatorIndex);
@@ -38,6 +42,37 @@ export function parseArgv(argv: string[]): FlareCliCommand {
 
     if (argument === "--no-color") {
       noColor = true;
+      continue;
+    }
+
+    if (argument === "-n") {
+      notify = true;
+      continue;
+    }
+
+    if (argument === "-b") {
+      bell = true;
+      continue;
+    }
+
+    if (argument === "-d") {
+      debugTerminal = true;
+      continue;
+    }
+
+    if (argument === "-s") {
+      const styleName = argv[index + 1];
+
+      if (!styleName) {
+        throw new Error("Missing value for -s");
+      }
+
+      if (!isAlertStyle(styleName)) {
+        throw new Error(`Unknown style: ${styleName}`);
+      }
+
+      style = styleName;
+      index += 1;
       continue;
     }
 
@@ -106,6 +141,29 @@ export function parseArgv(argv: string[]): FlareCliCommand {
       }
 
       usedRunFlag = true;
+      continue;
+    }
+
+    if (isShortFlagCluster(argument)) {
+      for (const shortFlag of argument.slice(1)) {
+        if (shortFlag === "n") {
+          notify = true;
+          continue;
+        }
+
+        if (shortFlag === "b") {
+          bell = true;
+          continue;
+        }
+
+        if (shortFlag === "d") {
+          debugTerminal = true;
+          continue;
+        }
+
+        throw new Error(`Unknown flag: -${shortFlag}`);
+      }
+
       continue;
     }
 

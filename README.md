@@ -88,10 +88,10 @@ flareup run --style banner -- npm test
 
 | Flag | Description |
 |------|-------------|
-| `--style <name>` | Visual style: `box`, `banner`, `callout`, `line`, `minimal`, `panel` |
-| `--notify` | Trigger terminal attention using `OSC 9`, `OSC 777`, or BEL |
-| `--bell` | Play a terminal bell character |
-| `--debug-terminal` | Print detected terminal info to stderr and exit |
+| `--style <name>`, `-s <name>` | Visual style: `box`, `banner`, `callout`, `line`, `minimal`, `panel` |
+| `--notify`, `-n` | Trigger terminal attention using `OSC 9`, `OSC 777`, or BEL |
+| `--bell`, `-b` | Play a terminal bell character |
+| `--debug-terminal`, `-d` | Print detected terminal info to stderr and exit |
 | `--no-color` | Disable color output |
 | `--help` | Show usage |
 | `--version` | Show version |

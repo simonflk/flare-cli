@@ -15,10 +15,10 @@ Statuses:
   success, error, warn, info, debug
 
 Flags:
-  --style <name>  box | banner | callout | line | minimal | panel
-  --notify        Trigger terminal attention (OSC 9 / OSC 777 / BEL)
-  --bell          Play a terminal bell character
-  --debug-terminal  Print detected terminal info to stderr
+  --style <name>, -s <name>  box | banner | callout | line | minimal | panel
+  --notify, -n              Trigger terminal attention (OSC 9 / OSC 777 / BEL)
+  --bell, -b                Play a terminal bell character
+  --debug-terminal, -d      Print detected terminal info to stderr
   --no-color
   --help
   --version`;
