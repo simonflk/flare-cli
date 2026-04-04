@@ -12,6 +12,7 @@ export interface AlertCliCommand {
   noColor: boolean;
   bell: boolean;
   notify: boolean;
+  debugTerminal: boolean;
 }
 
 export interface RunCliCommand {
@@ -20,6 +21,7 @@ export interface RunCliCommand {
   noColor: boolean;
   bell: boolean;
   notify: boolean;
+  debugTerminal: boolean;
   command: string[];
   successMessage?: string;
   errorMessage?: string;
@@ -43,6 +45,24 @@ export interface TerminalCapabilities {
   unicode: boolean;
   isTTY: boolean;
   attentionMode: "osc9" | "osc777" | "bell";
+}
+
+export interface TerminalDebugInfo extends TerminalCapabilities {
+  attentionReason:
+    | "not_tty"
+    | "dumb_terminal"
+    | "term_features_notifications"
+    | "vte_version"
+    | "known_osc9_terminal"
+    | "fallback_bell";
+  term?: string;
+  termProgram?: string;
+  termFeatures?: string;
+  vteVersion?: string;
+  hasKittyPid: boolean;
+  hasGhosttyResourcesDir: boolean;
+  noColorRequested: boolean;
+  noColorEnv: boolean;
 }
 
 export interface RunResult {

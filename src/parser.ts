@@ -25,6 +25,7 @@ export function parseArgv(argv: string[]): FlareCliCommand {
   let noColor = false;
   let bell = false;
   let notify = false;
+  let debugTerminal = false;
   let style: AlertCliCommand["style"] = "box";
   let successMessage: string | undefined;
   let errorMessage: string | undefined;
@@ -47,6 +48,11 @@ export function parseArgv(argv: string[]): FlareCliCommand {
 
     if (argument === "--notify") {
       notify = true;
+      continue;
+    }
+
+    if (argument === "--debug-terminal") {
+      debugTerminal = true;
       continue;
     }
 
@@ -125,6 +131,7 @@ export function parseArgv(argv: string[]): FlareCliCommand {
       noColor,
       bell,
       notify,
+      debugTerminal,
       command: commandArgs,
       successMessage,
       errorMessage,
@@ -156,6 +163,7 @@ export function parseArgv(argv: string[]): FlareCliCommand {
       noColor,
       bell,
       notify,
+      debugTerminal,
     };
   }
 
@@ -169,6 +177,7 @@ export function parseArgv(argv: string[]): FlareCliCommand {
       noColor,
       bell,
       notify,
+      debugTerminal,
     };
   }
 
@@ -180,6 +189,7 @@ export function parseArgv(argv: string[]): FlareCliCommand {
     noColor,
     bell,
     notify,
+    debugTerminal,
   };
 }
 
@@ -193,6 +203,10 @@ export function validateCommand(command: FlareCliCommand): FlareCliCommand {
       throw new Error("A command is required after --.");
     }
 
+    return command;
+  }
+
+  if (command.debugTerminal && (!command.message || command.message.length === 0)) {
     return command;
   }
 

@@ -1,4 +1,4 @@
-import type { TerminalCapabilities } from "./types.js";
+import type { TerminalCapabilities, TerminalDebugInfo } from "./types.js";
 
 const DEFAULT_WIDTH = 80;
 const ATTENTION_FEATURE = "NOTIFICATIONS";
@@ -49,24 +49,24 @@ function sanitizeOscText(value: string, allowSemicolons: boolean): string {
 function detectAttentionMode(
   env: NodeJS.ProcessEnv,
   stdout: Pick<NodeJS.WriteStream, "isTTY">,
-): TerminalCapabilities["attentionMode"] {
+): Pick<TerminalDebugInfo, "attentionMode" | "attentionReason"> {
   const term = env.TERM ?? "";
   const termProgram = env.TERM_PROGRAM ?? "";
 
   if (!stdout.isTTY) {
-    return "bell";
+    return { attentionMode: "bell", attentionReason: "not_tty" };
   }
 
   if (term === "dumb") {
-    return "bell";
+    return { attentionMode: "bell", attentionReason: "dumb_terminal" };
   }
 
   if (hasTermFeature(env.TERM_FEATURES, ATTENTION_FEATURE)) {
-    return "osc9";
+    return { attentionMode: "osc9", attentionReason: "term_features_notifications" };
   }
 
   if (env.VTE_VERSION) {
-    return "osc777";
+    return { attentionMode: "osc777", attentionReason: "vte_version" };
   }
 
   if (
@@ -77,26 +77,50 @@ function detectAttentionMode(
     termProgram === "iTerm.app" ||
     termProgram === "WezTerm"
   ) {
-    return "osc9";
+    return { attentionMode: "osc9", attentionReason: "known_osc9_terminal" };
   }
 
-  return "bell";
+  return { attentionMode: "bell", attentionReason: "fallback_bell" };
 }
 
-export function detectTerminalCapabilities(
+export function getTerminalDebugInfo(
   options: DetectTerminalCapabilitiesOptions = {},
-): TerminalCapabilities {
+): TerminalDebugInfo {
   const env = options.env ?? process.env;
   const stdout = options.stdout ?? process.stdout;
   const isDumbTerminal = env.TERM === "dumb";
   const colorEnabled = Boolean(stdout.isTTY) && !options.noColor && env.NO_COLOR === undefined;
+  const attention = detectAttentionMode(env, stdout);
 
   return {
     width: stdout.columns ?? DEFAULT_WIDTH,
     colorEnabled,
     unicode: !isDumbTerminal,
     isTTY: Boolean(stdout.isTTY),
-    attentionMode: detectAttentionMode(env, stdout),
+    attentionMode: attention.attentionMode,
+    attentionReason: attention.attentionReason,
+    term: env.TERM,
+    termProgram: env.TERM_PROGRAM,
+    termFeatures: env.TERM_FEATURES,
+    vteVersion: env.VTE_VERSION,
+    hasKittyPid: Boolean(env.KITTY_PID),
+    hasGhosttyResourcesDir: Boolean(env.GHOSTTY_RESOURCES_DIR),
+    noColorRequested: Boolean(options.noColor),
+    noColorEnv: env.NO_COLOR !== undefined,
+  };
+}
+
+export function detectTerminalCapabilities(
+  options: DetectTerminalCapabilitiesOptions = {},
+): TerminalCapabilities {
+  const debugInfo = getTerminalDebugInfo(options);
+
+  return {
+    width: debugInfo.width,
+    colorEnabled: debugInfo.colorEnabled,
+    unicode: debugInfo.unicode,
+    isTTY: debugInfo.isTTY,
+    attentionMode: debugInfo.attentionMode,
   };
 }
 

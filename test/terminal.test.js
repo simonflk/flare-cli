@@ -1,7 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { detectTerminalCapabilities, renderAttentionSequence } from "../.test-dist/terminal.js";
+import {
+  detectTerminalCapabilities,
+  getTerminalDebugInfo,
+  renderAttentionSequence,
+} from "../.test-dist/terminal.js";
 
 test("detectTerminalCapabilities prefers OSC 9 when notifications are advertised", () => {
   const terminal = detectTerminalCapabilities({
@@ -45,6 +49,24 @@ test("detectTerminalCapabilities falls back to BEL when no notification protocol
   });
 
   assert.equal(terminal.attentionMode, "bell");
+});
+
+test("getTerminalDebugInfo reports the attention reason and environment markers", () => {
+  const terminal = getTerminalDebugInfo({
+    env: {
+      TERM: "xterm-256color",
+      TERM_PROGRAM: "WezTerm",
+    },
+    stdout: {
+      columns: 120,
+      isTTY: true,
+    },
+  });
+
+  assert.equal(terminal.attentionMode, "osc9");
+  assert.equal(terminal.attentionReason, "known_osc9_terminal");
+  assert.equal(terminal.termProgram, "WezTerm");
+  assert.equal(terminal.width, 120);
 });
 
 test("renderAttentionSequence formats OSC 9, OSC 777, and BEL payloads", () => {

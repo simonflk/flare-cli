@@ -49,6 +49,14 @@ test("parseArgv recognizes --notify", () => {
   assert.equal(command.bell, false);
 });
 
+test("parseArgv recognizes --debug-terminal", () => {
+  const command = validateCommand(parseArgv(["--debug-terminal"]));
+
+  assert.equal(command.kind, "direct");
+  assert.equal(command.debugTerminal, true);
+  assert.equal(command.message, undefined);
+});
+
 test("parseArgv parses run mode and command arguments", () => {
   const command = validateCommand(parseArgv(["run", "--style", "panel", "--", "echo", "hello"]));
 
@@ -86,6 +94,7 @@ test("parseArgv accepts run-specific message and suppression flags", () => {
   assert.equal(command.showError, true);
   assert.equal(command.bell, false);
   assert.equal(command.notify, false);
+  assert.equal(command.debugTerminal, false);
 });
 
 test("parseArgv rejects unknown status names when a status and message are provided", () => {
@@ -107,4 +116,5 @@ test("validateCommand throws when the message is missing", () => {
   assert.throws(() => validateCommand(parseArgv([])), /message is required/i);
   assert.throws(() => validateCommand(parseArgv(["success"])), /message is required/i);
   assert.throws(() => validateCommand(parseArgv(["run", "--"])), /command is required/i);
+  assert.doesNotThrow(() => validateCommand(parseArgv(["--debug-terminal"])));
 });

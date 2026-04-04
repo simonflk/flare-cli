@@ -91,6 +91,7 @@ test("bell, notify, help, and version behave as documented", async () => {
   const helpResult = await runCli(["--help"]);
   const versionResult = await runCli(["--version"]);
   const bellResult = await runCli(["--bell", "hello"]);
+  const debugResult = await runCli(["--debug-terminal"]);
   const silentBellResult = await runCli([
     "run",
     "--bell",
@@ -105,8 +106,13 @@ test("bell, notify, help, and version behave as documented", async () => {
   assert.equal(helpResult.code, 0);
   assert.match(helpResult.stdout, /flareup run \[--success <msg>\]/);
   assert.match(helpResult.stdout, /--notify/);
+  assert.match(helpResult.stdout, /--debug-terminal/);
   assert.equal(versionResult.code, 0);
   assert.equal(versionResult.stdout.trim(), packageJson.version);
   assert.equal(bellResult.stdout.endsWith(BELL), true);
+  assert.equal(debugResult.stdout.trim(), "");
+  assert.match(debugResult.stderr, /Terminal Debug/);
+  assert.match(debugResult.stderr, /is_tty: false/);
+  assert.match(debugResult.stderr, /attention_mode: bell/);
   assert.equal(silentBellResult.stdout.trim(), "");
 });
